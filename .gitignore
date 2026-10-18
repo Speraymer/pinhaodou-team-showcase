@@ -1,0 +1,13 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+AGENTS.md
+.env*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+implementation.png
+design-comparison.jpg
