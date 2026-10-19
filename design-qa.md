@@ -2,7 +2,7 @@
 
 ## Visual comparison
 
-The implementation preserves the selected concept's deep-space composition, central team subject, luminous orbital language, ten visible member entries, and direct profile access. Later review decisions intentionally changed the center from a generated cherry blossom to YING's real avatar, reduced bloom so portraits stay legible, and tilted every member orbit independently across all three axes.
+The implementation preserves the deep-space composition, central team subject, orbital language, ten visible member entries, and direct profile access. The `frontend-design` pass replaces generic neon pills, all-caps labels, and a rounded card rail with a restrained Chinese astronomical-observatory system: a Song-style title, crosshair mark, thin coordinate labels, and a ruled member index. YING's real avatar remains the center; every other member keeps an independently tilted three-axis orbit.
 
 ## Interaction verification
 
@@ -14,4 +14,4 @@ The implementation preserves the selected concept's deep-space composition, cent
 
 ## Browser result
 
-The final local page rendered without runtime errors. All ten member portraits were visible, YING remained the primary center, and the orbital planes showed clear depth when rotated.
+The final local page rendered without runtime errors at desktop and narrow in-app-browser widths. All ten member portraits remained reachable, YING stayed the primary center, the orbital planes showed depth when rotated, and the narrow layout started farther from the constellation so edge nodes were not lost. The profile view, Escape close, focus restoration, and hidden mobile scrollbar were checked in the browser.

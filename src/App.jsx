@@ -49,15 +49,16 @@ function StarScene({ onSelect }) {
     host.replaceChildren();
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x02050d, 0.026);
+    scene.fog = new THREE.FogExp2(0x030712, 0.026);
     const camera = new THREE.PerspectiveCamera(46, host.clientWidth / host.clientHeight, 0.1, 100);
-    camera.position.set(0, 0, 23);
+    const initialZoom = host.clientWidth / host.clientHeight < 0.75 ? 35 : 23;
+    camera.position.set(0, 0, initialZoom);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
     renderer.setSize(host.clientWidth, host.clientHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.setClearColor(0x02050d, 1);
+    renderer.setClearColor(0x030712, 1);
     renderer.domElement.className = "webgl-canvas";
     renderer.domElement.setAttribute("aria-label", "可拖动旋转的拼好豆成员三维星图");
     host.appendChild(renderer.domElement);
@@ -80,7 +81,7 @@ function StarScene({ onSelect }) {
       starPositions[i + 2] = radius * Math.cos(phi);
     }
     starGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
-    const starMaterial = new THREE.PointsMaterial({ color: 0x8bdcff, size: 0.045, transparent: true, opacity: 0.72 });
+    const starMaterial = new THREE.PointsMaterial({ color: 0x9fcad0, size: 0.042, transparent: true, opacity: 0.48 });
     scene.add(new THREE.Points(starGeometry, starMaterial));
 
     const glow = glowTexture();
@@ -118,7 +119,7 @@ function StarScene({ onSelect }) {
 
       const aura = new THREE.Sprite(new THREE.SpriteMaterial({
         map: glow,
-        color: featured ? 0xff9bc6 : 0x43d6ff,
+        color: featured ? 0xe6a0b5 : 0x62b8c7,
         transparent: true,
         opacity: featured ? 0.2 : 0.12,
         blending: THREE.AdditiveBlending,
@@ -139,7 +140,7 @@ function StarScene({ onSelect }) {
       const ring = new THREE.Mesh(
         new THREE.TorusGeometry(radius * 1.12, radius * 0.042, 12, 96),
         new THREE.MeshBasicMaterial({
-          color: featured ? 0xffa3ca : 0x52dcff,
+          color: featured ? 0xe6a0b5 : 0x62b8c7,
           transparent: true,
           opacity: featured ? 0.62 : 0.4,
           blending: THREE.AdditiveBlending,
@@ -160,7 +161,7 @@ function StarScene({ onSelect }) {
       if (!featured) {
         const geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), node.position.clone()]);
         const line = new THREE.Line(geometry, new THREE.LineBasicMaterial({
-          color: 0x38c9ff,
+          color: 0x62b8c7,
           transparent: true,
           opacity: 0.12,
           blending: THREE.AdditiveBlending,
@@ -181,7 +182,7 @@ function StarScene({ onSelect }) {
     let previousY = 0;
     let targetX = -0.04;
     let targetY = 0;
-    let targetZoom = 23;
+    let targetZoom = initialZoom;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const locate = (event) => {
@@ -241,19 +242,17 @@ function StarScene({ onSelect }) {
     renderer.domElement.addEventListener("wheel", wheel, { passive: false });
 
     let frame = 0;
-    let elapsed = 0;
     let lastTime = performance.now();
     const animate = (now) => {
       frame = requestAnimationFrame(animate);
       const delta = Math.min((now - lastTime) / 1000, 0.05);
       lastTime = now;
-      elapsed += delta;
       if (!pressing && !reducedMotion) targetY += delta * 0.042;
       constellation.rotation.x += (targetX - constellation.rotation.x) * 0.07;
       constellation.rotation.y += (targetY - constellation.rotation.y) * 0.07;
       camera.position.z += (targetZoom - camera.position.z) * 0.08;
       labels.domElement.style.opacity = String(THREE.MathUtils.clamp((46 - camera.position.z) / 18, 0.35, 1));
-      orbiters.forEach((orbiter, index) => {
+      orbiters.forEach((orbiter) => {
         if (!reducedMotion) {
           orbiter.angle += delta * orbiter.orbit.speed;
           orbiter.node.position.set(
@@ -265,9 +264,6 @@ function StarScene({ onSelect }) {
             orbiter.connection.setXYZ(1, ...orbiter.node.position.toArray());
             orbiter.connection.needsUpdate = true;
           }
-          const pulse = 1 + Math.sin(elapsed * 1.3 + index) * (orbiter.featured ? 0.025 : 0.015);
-          orbiter.aura.scale.multiplyScalar(pulse / (orbiter.aura.userData.lastPulse || 1));
-          orbiter.aura.userData.lastPulse = pulse;
         }
       });
       renderer.render(scene, camera);
@@ -329,10 +325,10 @@ function Profile({ member, onClose }) {
       <div className={`profile__portrait${member.featured ? " profile__portrait--featured" : ""}`}>
         <img src={member.avatar} alt={`${member.name} 的头像`} />
       </div>
-      <p className="profile__eyebrow">{member.featured ? "中心坐标 · 团队主体" : "独立坐标 · 团队成员"}</p>
+      <p className="profile__eyebrow">{member.featured ? "团队主体，位于星图中心" : "拼好豆项目研发部成员"}</p>
       <h2>{member.name}</h2>
-      <p className="profile__copy">来自拼好豆项目研发部。这里保留属于 {member.name} 的独立主页位置。</p>
-      <div className="profile__signal"><span /> SIGNAL CONNECTED</div>
+      <p className="profile__copy">这里是 {member.name} 的独立主页。返回星图，可以继续查看其他成员。</p>
+      <div className="profile__signal"><span />已连接到团队星图</div>
     </aside>
   );
 }
@@ -375,13 +371,13 @@ export function App() {
         <header className="site-header">
           <div className="site-header__mark" aria-hidden="true" />
           <div>
-            <p>PINHAODOU / PHOTONIC CONSTELLATION</p>
-            <h1>拼好豆项目研发部</h1>
+            <h1><span>拼好豆</span><span>项目研发部</span></h1>
+            <p>十位成员，一张可以转动的团队星图。</p>
           </div>
         </header>
         <div className="interaction-note">
-          <strong>探索团队星域</strong>
-          <span>360° 拖动旋转 · 独立轨道运行 · 点击进入</span>
+          <strong>拖动星图</strong>
+          <span>转动视角，滚轮调整远近；选择头像进入主页。</span>
         </div>
         <nav className="member-rail" aria-label="全部成员主页入口">
           {TEAM.map((member) => (
@@ -397,7 +393,7 @@ export function App() {
             </button>
           ))}
         </nav>
-        <div className="corner-index">10 / MEMBERS</div>
+        <div className="corner-index">10 位成员</div>
       </div>
       <Profile member={selected} onClose={closeProfile} />
     </main>
